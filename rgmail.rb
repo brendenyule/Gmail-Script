@@ -39,13 +39,29 @@ class Request
     @response.elements.each("feed/entry/author/name") { |e| puts e.get_text() }
   end
 
-  def get_sender_email
+  def get_author_email
+  end
+
+  def method_missing (method, *args, &block)
+    # TODO validate and return wrong methods
+    self.class.send(:define_method, method) do
+      strng = method.to_s
+      path = strng.sub("get_", '').sub("email", "entry").gsub('_', '/')
+      @response.elements.each("feed/"+path) { |e| return e.get_text() }
+    end
+    self.send(method, *args, &block)
+  end
 end
 
 me = User.new("testmailtestertesting", "foobarbaz")
 req = Request.new(me)
 
 req.request
-req.get_count
-req.get_sender
+#req.get_count
+#req.get_sender
+#req.get_email_author_name
+#req.get_fullcount
+#req.get_count
+#puts req.get_email_author_email
+puts req.get_email_summary
 
